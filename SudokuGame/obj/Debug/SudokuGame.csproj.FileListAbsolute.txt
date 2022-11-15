@@ -1,0 +1,7 @@
+G:\Programming\SudokuGame\SudokuGame\bin\Debug\SudokuGame.exe.config
+G:\Programming\SudokuGame\SudokuGame\bin\Debug\SudokuGame.exe
+G:\Programming\SudokuGame\SudokuGame\bin\Debug\SudokuGame.pdb
+G:\Programming\SudokuGame\SudokuGame\obj\Debug\SudokuGame.csproj.AssemblyReference.cache
+G:\Programming\SudokuGame\SudokuGame\obj\Debug\SudokuGame.csproj.CoreCompileInputs.cache
+G:\Programming\SudokuGame\SudokuGame\obj\Debug\SudokuGame.exe
+G:\Programming\SudokuGame\SudokuGame\obj\Debug\SudokuGame.pdb
