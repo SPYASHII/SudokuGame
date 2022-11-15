@@ -11,7 +11,7 @@ namespace SudokuGame
     {
         static Random rnd = new Random();
 
-        static int x = 0, y = 0,border_X = x + 1, border_Y = y + 1, section = 0, num_to_insert = 0;
+        static int x = 0, y = 1,border_X = x + 1, border_Y = y + 1, section = 0, num_to_insert = 0;
 
         static bool element_not_valid = false;
 
@@ -38,7 +38,7 @@ namespace SudokuGame
             }
             Console.WriteLine();
         }
-        static void Generate()
+        static void Generate()//Генерация
         {
             bool insert;
             int[] memory = new int[field_size];
@@ -149,7 +149,7 @@ namespace SudokuGame
             //ShowArr(field);
             //ShowArr(field_for_player);
         } 
-        static void Draw()
+        static void Draw() //Отрисовка
         {
             int check = 0;
             Console.Clear();
@@ -344,13 +344,13 @@ namespace SudokuGame
             }
             Console.ResetColor();
             Console.WriteLine();
-            ShowArr(field);
-            foreach (int i in wrong_elm_cord)
-            {
-                Console.Write(i);
-            }
+            //ShowArr(field);
+            //foreach (int i in wrong_elm_cord)
+            //{
+            //    Console.Write(i);
+            //}
         }
-        static void Input()
+        static void Input()//Отслежевание ввода с клавиатуры
         {
                 button = Console.ReadKey();
                 if ((int)Char.GetNumericValue(button.KeyChar) >= 0 && (int)Char.GetNumericValue(button.KeyChar) < 10)
@@ -379,7 +379,7 @@ namespace SudokuGame
                     }
         }
 
-        static void CheckElement()
+        static void CheckElement()//Проверка на правильность поставленного елемента
         {
             element_not_valid = false;
             
@@ -548,7 +548,7 @@ namespace SudokuGame
             }
             buffer.Clear();
         }
-        static void Logic()
+        static void Logic()//Логика игры
         {
             bool insert = true;
             switch (pressed)
@@ -644,6 +644,7 @@ namespace SudokuGame
         static void Main()
         {
             Generate();
+            Logic();
             while (true)
             {
                 Draw();
