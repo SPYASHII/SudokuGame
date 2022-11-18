@@ -42,6 +42,7 @@ namespace SudokuGame
         {
             List<int> x_mod = new List<int> { };
             List<int> y_mod = new List<int> { };
+
             switch (section)
             {
                 case 1:
@@ -144,6 +145,7 @@ namespace SudokuGame
                     y_mod.Add(-2);
                     break;
             }
+
             switch (type)
             {
                 case "draw":
@@ -165,6 +167,7 @@ namespace SudokuGame
                     }
                     break;
             }
+
             return good;
         }
         static void Generate()//Генерация
