@@ -11,7 +11,7 @@ namespace SudokuGame
     {
         static Random rnd = new Random();
 
-        static int x = 0, y = 1,border_X = x + 1, border_Y = y + 1, section = 0, num_to_insert = 0;
+        static int x = 0, y = 1, border_X = x + 1, border_Y = y + 1, section = 0, num_to_insert = 0;
 
         static bool element_not_valid = false;
 
@@ -26,7 +26,7 @@ namespace SudokuGame
         enum key { UP, DOWN, RIGHT, LEFT, INSERT, TRASH }
         static key pressed;
 
-        static void ShowArr(int [,] arr)
+        static void ShowArr(int[,] arr)
         {
             for (int i = 0; i < field_size; i++)
             {
@@ -37,6 +37,135 @@ namespace SudokuGame
                 Console.WriteLine();
             }
             Console.WriteLine();
+        }
+        static bool SectionLogic(string type, ref List<int> memory, ref List<int> buffer, bool good, int a, int b)
+        {
+            List<int> x_mod = new List<int> { };
+            List<int> y_mod = new List<int> { };
+            switch (section)
+            {
+                case 1:
+                    x_mod.Add(1);
+                    x_mod.Add(2);
+                    x_mod.Add(1);
+                    x_mod.Add(2);
+
+                    y_mod.Add(1);
+                    y_mod.Add(1);
+                    y_mod.Add(2);
+                    y_mod.Add(2);
+                    break;
+                case 2:
+                    x_mod.Add(1);
+                    x_mod.Add(-1);
+                    x_mod.Add(1);
+                    x_mod.Add(-1);
+
+                    y_mod.Add(1);
+                    y_mod.Add(1);
+                    y_mod.Add(2);
+                    y_mod.Add(2);
+                    break;
+                case 3:
+                    x_mod.Add(-1);
+                    x_mod.Add(-2);
+                    x_mod.Add(-1);
+                    x_mod.Add(-2);
+
+                    y_mod.Add(1);
+                    y_mod.Add(1);
+                    y_mod.Add(2);
+                    y_mod.Add(2);
+                    break;
+                case 4:
+                    x_mod.Add(1);
+                    x_mod.Add(2);
+                    x_mod.Add(1);
+                    x_mod.Add(2);
+
+                    y_mod.Add(-1);
+                    y_mod.Add(-1);
+                    y_mod.Add(1);
+                    y_mod.Add(1);
+                    break;
+                case 5:
+                    x_mod.Add(-1);
+                    x_mod.Add(1);
+                    x_mod.Add(1);
+                    x_mod.Add(-1);
+
+                    y_mod.Add(-1);
+                    y_mod.Add(1);
+                    y_mod.Add(-1);
+                    y_mod.Add(1);
+                    break;
+                case 6:
+                    x_mod.Add(-1);
+                    x_mod.Add(-2);
+                    x_mod.Add(-1);
+                    x_mod.Add(-2);
+
+                    y_mod.Add(-1);
+                    y_mod.Add(-1);
+                    y_mod.Add(1);
+                    y_mod.Add(1);
+                    break;
+                case 7:
+                    x_mod.Add(1);
+                    x_mod.Add(2);
+                    x_mod.Add(1);
+                    x_mod.Add(2);
+
+                    y_mod.Add(-1);
+                    y_mod.Add(-1);
+                    y_mod.Add(-2);
+                    y_mod.Add(-2);
+                    break;
+                case 8:
+                    x_mod.Add(1);
+                    x_mod.Add(-1);
+                    x_mod.Add(1);
+                    x_mod.Add(-1);
+
+                    y_mod.Add(-1);
+                    y_mod.Add(-1);
+                    y_mod.Add(-2);
+                    y_mod.Add(-2);
+                    break;
+                case 9:
+                    x_mod.Add(-1);
+                    x_mod.Add(-1);
+                    x_mod.Add(-2);
+                    x_mod.Add(-2);
+
+                    y_mod.Add(-1);
+                    y_mod.Add(-2);
+                    y_mod.Add(-1);
+                    y_mod.Add(-2);
+                    break;
+            }
+            switch (type)
+            {
+                case "draw":
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (((y + y_mod[i]) == a) && ((x + x_mod[i]) == b))
+                        {
+                            Console.BackgroundColor = ConsoleColor.Green;
+                            return good = false;
+                        }
+                    }
+                    break;
+                case "check":
+                    for (int i = 0; i < 4; i++)
+                    {
+                        memory.Add(field_for_player[y + y_mod[i], x + x_mod[i]]);
+                        buffer.Add(y + y_mod[i]);
+                        buffer.Add(x + x_mod[i]);
+                    }
+                    break;
+            }
+            return good;
         }
         static void Generate()//Генерация
         {
@@ -161,113 +290,12 @@ namespace SudokuGame
                 Console.ResetColor();
                 for (int j = 0; j < field_size; j++)
                 {
-                    bool good = false;
+                    bool good = true;
+
                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-                    switch (section)
-                    {
-                        case 1:
-                            if (((y + 1) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if (((y + 1) == i) && ((x + 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if (((y + 2) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if (((y + 2) == i) && ((x + 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else good = true;
-                            break;
-                        case 2:
-                            if(((y + 1) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y + 1) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y + 2) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y + 2) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else good = true;
-                            break;
-                        case 3:
-                            if(((y + 1) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y + 1) == i) && ((x - 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y + 2) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if (((y + 2) == i) && ((x - 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else good = true;
-                            break;
-                        case 4:
-                            if(((y - 1) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 1) == i) && ((x + 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y + 1) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y + 1) == i) && ((x + 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else good = true;
-                            break;
-                        case 5:
-                            if(((y - 1) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y + 1) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 1) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y + 1) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else good = true;
-                            break;
-                        case 6:
-                            if(((y - 1) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 1) == i) && ((x - 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y + 1) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y + 1) == i) && ((x - 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else good = true;
-                            break;
-                        case 7:
-                            if(((y - 1) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 1) == i) && ((x + 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 2) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 2) == i) && ((x + 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else good = true;
-                            break;
-                        case 8:
-                            if(((y - 1) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 1) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 2) == i) && ((x + 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 2) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else good = true;
-                            break;
-                        case 9:
-                            if(((y - 1) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 2) == i) && ((x - 1) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 1) == i) && ((x - 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else if(((y - 2) == i) && ((x - 2) == j))
-                                Console.BackgroundColor = ConsoleColor.Green;
-                            else good = true;
-                            break;
-                        default:
-                            good = true;
-                            break;
-                    }
+
+                    good = SectionLogic("draw", ref wrong_elm_cord, ref wrong_elm_cord, good, i, j);
+
                     for (int k = 0; k < wrong_elm_cord.Count; k += 2)
                     {
                         if (i == wrong_elm_cord[k] && j == wrong_elm_cord[k + 1])
@@ -277,10 +305,12 @@ namespace SudokuGame
                             break;
                         }
                     }
+
                     if ((j == x || i == y) && good)
                         Console.BackgroundColor = ConsoleColor.Green;
                     else if (good)
                         Console.BackgroundColor = ConsoleColor.White;
+
                     if (check < static_elements_coordinates.Count)
                     {
                         if (i == static_elements_coordinates[check] && j == static_elements_coordinates[check + 1])
@@ -289,6 +319,7 @@ namespace SudokuGame
                             check += 2;
                         }
                     }
+
                     if (i == y && j == x)
                     {
                         if (element_not_valid)
@@ -385,6 +416,7 @@ namespace SudokuGame
             
             List<int> memory = new List<int>(20);
             List<int> buffer = new List<int>();
+
             for (int i = 0; i < field_size; i++)
             {
                 if (i != y)
@@ -400,139 +432,12 @@ namespace SudokuGame
                     buffer.Add(i);
                 }
             }
-            switch (section)
-            {
-                case 1:
-                    memory.Add(field_for_player[y + 1, x + 1]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y + 1, x + 2]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x + 2);
-                    memory.Add(field_for_player[y + 2, x + 1]);
-                    buffer.Add(y + 2);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y + 2, x + 2]);
-                    buffer.Add(y + 2);
-                    buffer.Add(x + 2);
-                    break;
-                case 2:
-                    memory.Add(field_for_player[y + 1, x + 1]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y + 1, x - 1]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x - 1);
-                    memory.Add(field_for_player[y + 2, x + 1]);
-                    buffer.Add(y + 2);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y + 2, x - 1]);
-                    buffer.Add(y + 2);
-                    buffer.Add(x - 1);
-                    break;
-                case 3:
-                    memory.Add(field_for_player[y + 1, x - 1]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x - 1);
-                    memory.Add(field_for_player[y + 1, x - 2]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x - 2);
-                    memory.Add(field_for_player[y + 2, x - 1]);
-                    buffer.Add(y + 2);
-                    buffer.Add(x - 1);
-                    memory.Add(field_for_player[y + 2, x - 2]);
-                    buffer.Add(y + 2);
-                    buffer.Add(x - 2);
-                    break;
-                case 4:
-                    memory.Add(field_for_player[y - 1, x + 1]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y - 1, x + 2]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x + 2);
-                    memory.Add(field_for_player[y + 1, x + 1]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y + 1, x + 2]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x + 2);
-                    break;
-                case 5:
-                    memory.Add(field_for_player[y - 1, x - 1]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x - 1);
-                    memory.Add(field_for_player[y + 1, x + 1]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y - 1, x + 1]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y + 1, x - 1]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x - 1);
-                    break;
-                case 6:
-                    memory.Add(field_for_player[y - 1, x - 1]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x - 1);
-                    memory.Add(field_for_player[y - 1, x - 2]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x - 2);
-                    memory.Add(field_for_player[y + 1, x - 1]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x - 1);
-                    memory.Add(field_for_player[y + 1, x - 2]);
-                    buffer.Add(y + 1);
-                    buffer.Add(x - 2);
-                    break;
-                case 7:
-                    memory.Add(field_for_player[y - 1, x + 1]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y - 1, x + 2]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x + 2);
-                    memory.Add(field_for_player[y - 2, x + 1]);
-                    buffer.Add(y - 2);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y - 2, x + 2]);
-                    buffer.Add(y - 2);
-                    buffer.Add(x + 2);
-                    break;
-                case 8:
-                    memory.Add(field_for_player[y - 1, x + 1]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y - 1, x - 1]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x - 1);
-                    memory.Add(field_for_player[y - 2, x + 1]);
-                    buffer.Add(y - 2);
-                    buffer.Add(x + 1);
-                    memory.Add(field_for_player[y - 2, x - 1]);
-                    buffer.Add(y - 2);
-                    buffer.Add(x - 1);
-                    break;
-                case 9:
-                    memory.Add(field_for_player[y - 1, x - 1]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x - 1);
-                    memory.Add(field_for_player[y - 2, x - 1]);
-                    buffer.Add(y - 2);
-                    buffer.Add(x - 1);
-                    memory.Add(field_for_player[y - 1, x - 2]);
-                    buffer.Add(y - 1);
-                    buffer.Add(x - 2);
-                    memory.Add(field_for_player[y - 2, x - 2]);
-                    buffer.Add(y - 2);
-                    buffer.Add(x - 2);
-                    break;
-                default:
-                    break;
-            }
+
+            SectionLogic("check",ref memory,ref buffer, false, 0, 0);
+
             buffer.Add(y);
             buffer.Add(x);
+
             if (memory.Contains(field_for_player[y, x]))
             {
                 element_not_valid = true;
@@ -546,6 +451,7 @@ namespace SudokuGame
                     }
                 }
             }
+
             buffer.Clear();
         }
         static void Logic()//Логика игры
