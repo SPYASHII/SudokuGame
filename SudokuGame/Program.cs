@@ -13,19 +13,42 @@ namespace SudokuGame
 
         static int x = 0, y = 1, border_X = x + 1, border_Y = y + 1, section = 0, num_to_insert = 0;
 
-        static bool element_not_valid = false, show_answer = false, end_game = true, win = false;
+        static bool show_answer = false, end_game = true, win = false;
 
         const int field_size = 9;
         static int[,] field = new int[field_size, field_size];
         static int[,] field_for_player = new int[field_size, field_size];
 
         static List<int> static_elements_coordinates = new List<int> { };
-        static List<int> wrong_elm_cord = new List<int> { };
-
+        static List<List<int>> wrong_elm_cord_lists = new List<List<int>> { };
+        
         static ConsoleKeyInfo button;
         enum key { UP, DOWN, RIGHT, LEFT, INSERT, ANSWER, END, TRASH }
         static key pressed;
-
+        static void DeleteWrngEl(int y, int x)//Логика удаления из памяти некоректно стоящих елементов
+        {
+            for (int i = 0; i < wrong_elm_cord_lists.Count; i++)
+            {
+                for(int j = 0; j < wrong_elm_cord_lists[i].Count; j += 2)
+                {
+                    if (wrong_elm_cord_lists[i][j] == y && wrong_elm_cord_lists[i][j + 1] == x)
+                    {
+                        if (j == 0)
+                        {
+                            wrong_elm_cord_lists.RemoveAt(i);
+                            i--;
+                            break;
+                        }
+                        else
+                        {
+                            wrong_elm_cord_lists[i].RemoveAt(j);
+                            wrong_elm_cord_lists[i].RemoveAt(j);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         static void ShowArr(int[,] arr)
         {
             for (int i = 0; i < field_size; i++)
@@ -38,7 +61,7 @@ namespace SudokuGame
             }
             Console.WriteLine();
         }
-        static bool ElExist(int[,]arr, int find)
+        static bool ElExist(int[,]arr, int find)//Существует ли елемент в двухмерном массиве
         {
             bool exist = false;
             for (int i = 0; i < field_size; i++)
@@ -52,7 +75,7 @@ namespace SudokuGame
                 }
             }
             return exist;
-        }//Сушествует ли елемент в двухмерном массиве
+        }
         static void Generate()//Генерация
         {
             bool insert;
@@ -165,7 +188,7 @@ namespace SudokuGame
             //ShowArr(field);
             //ShowArr(field_for_player);
         }
-        static bool SectionLogic(string type, ref List<int> memory, ref List<int> buffer, bool good, int a, int b)
+        static bool SectionLogic(string type, ref List<int> memory, ref List<int> buffer, bool good, int a, int b)//Логика проверки елементов в зависимости от секции
         {
             List<int> x_mod = new List<int> { };
             List<int> y_mod = new List<int> { };
@@ -296,108 +319,156 @@ namespace SudokuGame
             }
 
             return good;
-        } //Логика разных действий в зависимости от секции
-        
+        }
+        static void CheckElement()//Проверка на правильность поставленного елемента
+        {
+
+            List<int> memory = new List<int>(20);
+            List<int> buffer = new List<int>();
+            List<int> wrong_elm_cord = new List<int> { };
+
+            buffer.Add(y);
+            buffer.Add(x);
+
+            for (int i = 0; i < field_size; i++)
+            {
+                if (i != y)
+                {
+                    memory.Add(field_for_player[i, x]);
+                    buffer.Add(i);
+                    buffer.Add(x);
+                }
+                if (i != x)
+                {
+                    memory.Add(field_for_player[y, i]);
+                    buffer.Add(y);
+                    buffer.Add(i);
+                }
+            }
+
+            SectionLogic("check", ref memory, ref buffer, false, 0, 0);
+
+            if (memory.Contains(field_for_player[y, x]))
+            {
+
+                for (int i = 0; i < buffer.Count; i += 2)
+                {
+                    if (field_for_player[y, x] == field_for_player[buffer[i], buffer[i + 1]])
+                    {
+                        wrong_elm_cord.Add(buffer[i]);
+                        wrong_elm_cord.Add(buffer[i + 1]);
+                    }
+                }
+                wrong_elm_cord_lists.Add(wrong_elm_cord);
+            }
+        }
+
         static void Draw() //Отрисовка
         {
             int check = 0;
             Console.Clear();
-            if (!win)
+            
+            for (int i = 0; i < field_size; i++)
             {
-                for (int i = 0; i < field_size; i++)
+                Console.BackgroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Black;
+                Console.Write("|");
+                Console.ResetColor();
+                for (int j = 0; j < field_size; j++)
                 {
-                    Console.BackgroundColor = ConsoleColor.White;
-                    Console.ForegroundColor = ConsoleColor.Black;
-                    Console.Write("|");
-                    Console.ResetColor();
-                    for (int j = 0; j < field_size; j++)
+                    bool good = true;
+
+                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+
+                    good = SectionLogic("draw", ref static_elements_coordinates, ref static_elements_coordinates, good, i, j);
+
+                    for (int l = 0; l < wrong_elm_cord_lists.Count; l++)
                     {
-                        bool good = true;
-
-                        Console.ForegroundColor = ConsoleColor.DarkBlue;
-
-                        good = SectionLogic("draw", ref wrong_elm_cord, ref wrong_elm_cord, good, i, j);
-
-                        for (int k = 0; k < wrong_elm_cord.Count; k += 2)
+                        bool exit = false;
+                        for (int k = 0; k < wrong_elm_cord_lists[l].Count; k += 2)
                         {
-                            if (i == wrong_elm_cord[k] && j == wrong_elm_cord[k + 1])
+                            if (i == wrong_elm_cord_lists[l][k] && j == wrong_elm_cord_lists[l][k + 1])
                             {
                                 Console.BackgroundColor = ConsoleColor.Red;
                                 good = false;
+                                exit = true;
                                 break;
                             }
                         }
+                        if (exit)
+                            break;
+                    }
 
-                        if ((j == x || i == y) && good)
-                            Console.BackgroundColor = ConsoleColor.Green;
-                        else if (good)
-                            Console.BackgroundColor = ConsoleColor.White;
+                    if ((j == x || i == y) && good)
+                        Console.BackgroundColor = ConsoleColor.Green;
+                    else if (good)
+                        Console.BackgroundColor = ConsoleColor.White;
 
-                        if (check < static_elements_coordinates.Count)
+                    if (check < static_elements_coordinates.Count)
+                    {
+                        if (i == static_elements_coordinates[check] && j == static_elements_coordinates[check + 1])
                         {
-                            if (i == static_elements_coordinates[check] && j == static_elements_coordinates[check + 1])
-                            {
-                                Console.ForegroundColor = ConsoleColor.Black;
-                                check += 2;
-                            }
-                        }
-
-                        if (i == y && j == x)
-                        {
-                            if (element_not_valid)
-                                Console.BackgroundColor = ConsoleColor.Red;
-                            else
-                                Console.BackgroundColor = ConsoleColor.Cyan;
-
-                            Console.Write($" ");
-                            if (field_for_player[i, j] != 0)
-                                Console.Write($"{field_for_player[i, j]}");
-                            else
-                                Console.Write($" ");
-                            Console.Write(" ");
-
-                            Console.BackgroundColor = ConsoleColor.White;
                             Console.ForegroundColor = ConsoleColor.Black;
-                            if ((j + 1) % 3 == 0)
-                                Console.Write($"[]");
-                            else
-                                Console.Write($"|");
-                        }
-                        else
-                        {
-                            if (field_for_player[i, j] != 0)
-                                Console.Write($" {field_for_player[i, j]} ");
-                            else
-                                Console.Write($"   ");
-                            Console.BackgroundColor = ConsoleColor.White;
-                            Console.ForegroundColor = ConsoleColor.Black;
-                            if ((j + 1) % 3 == 0)
-                                Console.Write($"[]");
-                            else
-                                Console.Write($"|");
+                            check += 2;
                         }
                     }
-                    Console.WriteLine();
-                    if ((i + 1) % 3 == 0)
+
+                    if (i == y && j == x)
                     {
-                        for (int k = 0; k < field_size + 31; k++)
-                        {
-                            Console.Write("=");
-                        }
+                        Console.BackgroundColor = ConsoleColor.Cyan;
+
+                        Console.Write($" ");
+                        if (field_for_player[i, j] != 0)
+                            Console.Write($"{field_for_player[i, j]}");
+                        else
+                            Console.Write($" ");
+                        Console.Write(" ");
+
+                        Console.BackgroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        if ((j + 1) % 3 == 0)
+                            Console.Write($"[]");
+                        else
+                            Console.Write($"|");
                     }
                     else
                     {
+                        if (field_for_player[i, j] != 0)
+                            Console.Write($" {field_for_player[i, j]} ");
+                        else
+                            Console.Write($"   ");
                         Console.BackgroundColor = ConsoleColor.White;
-                        for (int k = 0; k < field_size + 31; k++)
-                        {
-                            Console.Write("-");
-                        }
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        if ((j + 1) % 3 == 0)
+                            Console.Write($"[]");
+                        else
+                            Console.Write($"|");
                     }
-
-                    Console.WriteLine();
                 }
-                Console.ResetColor();
                 Console.WriteLine();
+
+                if ((i + 1) % 3 == 0)
+                {
+                    for (int k = 0; k < field_size + 31; k++)
+                    {
+                        Console.Write("=");
+                    }
+                }
+                else
+                {
+                    Console.BackgroundColor = ConsoleColor.White;
+                    for (int k = 0; k < field_size + 31; k++)
+                    {
+                        Console.Write("-");
+                    }
+                }
+
+                Console.WriteLine();
+            }
+            Console.ResetColor();
+            Console.WriteLine();
+            if (!win)
+            {
                 Console.WriteLine("Controls:\nA,W,S,D\nEND - Close game");
                 if (show_answer)
                 {
@@ -410,27 +481,23 @@ namespace SudokuGame
             else
             {
                 Console.WriteLine("" +
-                    "33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333\n"+
-                    "33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333\n"+
-                    "3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333XX3XXX333X3X3333333333\n"+
-                    "3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333X           S333333333\n"+
-                    "333X  X33333   3333      XX33  333    333333  33333    3X    X, :33333    X3    333333333           rSX3333333\n"+
-                    "333X  iS3333   5S  33Si    33  S33    SS3333  S2333    Si    S    X333    SS    S5333                   X33333\n"+
-                    "333X  SS33     5S  SS33    S5  S33    SS3333  S2333    5S    S  .S  X3    SS    S5333  2S           rS  2S3333\n"+
-                    "333333        iiS  5S33    S5  S33    SS3333  S  X3    SS    S  .SXX      Si    S53333X               2XSS3333\n"+
-                    "33333333    SSS33  5S33    S5  S33    SS3333  S  SS    5S    S  .SX333    SS    S53333333SS       .SSSSS333333\n"+
-                    "33333333    SS333  Si3X    S2  S3X    SS3333  S  iS    SS    S  .SX333    SS32iiS533333333333    iSS2333333333\n"+
-                    "33333333    5S33333      2SSS33     55Si333333 r3    55SS    S  ,SX333    iS    33333333333X3    SS33333333333\n"+
-                    "3333333333SiiS3333323SSSS5S3333355SSSS33333333325X35SSi3X33SSi5X2iX33333SSiS33S5SS33333333X       ,33333333333\n"+
-                    "3333333333255533333335255553333355555533333333325332555X333555X325333333555533555233333333X:;,,,,,rXX333333333\n"+
-                    "333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333SSSSSSSX333333333\n"+
-                    "33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333\n"+
+                    "33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333\n" +
+                    "33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333\n" +
+                    "3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333XX3XXX333X3X3333333333\n" +
+                    "3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333X           S333333333\n" +
+                    "333X  X33333   3333      XX33  333    333333  33333    3X    X, :33333    X3    333333333           rSX3333333\n" +
+                    "333X  iS3333   5S  33Si    33  S33    SS3333  S2333    Si    S    X333    SS    S5333                   X33333\n" +
+                    "333X  SS33     5S  SS33    S5  S33    SS3333  S2333    5S    S  .S  X3    SS    S5333  2S           rS  2S3333\n" +
+                    "333333        iiS  5S33    S5  S33    SS3333  S  X3    SS    S  .SXX      Si    S53333X               2XSS3333\n" +
+                    "33333333    SSS33  5S33    S5  S33    SS3333  S  SS    5S    S  .SX333    SS    S53333333SS       .SSSSS333333\n" +
+                    "33333333    SS333  Si3X    S2  S3X    SS3333  S  iS    SS    S  .SX333    SS32iiS533333333333    iSS2333333333\n" +
+                    "33333333    5S33333      2SSS33     55Si333333 r3    55SS    S  ,SX333    iS    33333333333X3    SS33333333333\n" +
+                    "3333333333SiiS3333323SSSS5S3333355SSSS33333333325X35SSi3X33SSi5X2iX33333SSiS33S5SS33333333X       ,33333333333\n" +
+                    "3333333333255533333335255553333355555533333333325332555X333555X325333333555533555233333333X:;,,,,,rXX333333333\n" +
+                    "333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333SSSSSSSX333333333\n" +
+                    "33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333\n" +
                     "33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
             }
-            //foreach (int i in wrong_elm_cord)
-            //{
-            //    Console.Write(i);
-            //}
         }
         static void Input()//Отслежевание ввода с клавиатуры
         {
@@ -474,53 +541,9 @@ namespace SudokuGame
                     }
             } while (pressed == key.TRASH && end_game);
         }
-        static void CheckElement()//Проверка на правильность поставленного елемента
-        {
-            element_not_valid = false;
-            
-            List<int> memory = new List<int>(20);
-            List<int> buffer = new List<int>();
-
-            for (int i = 0; i < field_size; i++)
-            {
-                if (i != y)
-                {
-                    memory.Add(field_for_player[i, x]);
-                    buffer.Add(i);
-                    buffer.Add(x);
-                }
-                if (i != x)
-                {
-                    memory.Add(field_for_player[y, i]);
-                    buffer.Add(y);
-                    buffer.Add(i);
-                }
-            }
-
-            SectionLogic("check",ref memory,ref buffer, false, 0, 0);
-
-            buffer.Add(y);
-            buffer.Add(x);
-
-            if (memory.Contains(field_for_player[y, x]))
-            {
-                element_not_valid = true;
-                wrong_elm_cord.Clear();
-                for (int i = 0; i < buffer.Count; i += 2)
-                {
-                    if (field_for_player[y, x] == field_for_player[buffer[i],buffer[i+1]])
-                    {
-                        wrong_elm_cord.Add(buffer[i]);
-                        wrong_elm_cord.Add(buffer[i+1]);
-                    }
-                }
-            }
-
-            buffer.Clear();
-        }
         static void Logic()//Логика игры
         {
-            bool insert = true;
+            bool insert = false;
             switch (pressed)
             {
                 case key.UP:
@@ -547,14 +570,14 @@ namespace SudokuGame
                             insert = false;
                             break;
                         }
+                        else
+                            insert = true;
                     } //Проверка на статичный елемент
 
                     if (insert)
                     {
-                        //if (field_for_player[y, x] != 0 && num_to_insert == 0)
-                        //    wrong_elm_cord.Clear();
+                        DeleteWrngEl(y, x);
                         field_for_player[y, x] = num_to_insert;
-                        wrong_elm_cord.Clear();
                     }
                     break;
                 case key.ANSWER:
@@ -563,21 +586,8 @@ namespace SudokuGame
                 case key.END:
                     end_game = false;
                     break;
-                default:
-                    break;
             }
 
-            if (insert)
-            {
-                for (int i = 0; i < static_elements_coordinates.Count; i += 2)
-                {
-                    if (y == static_elements_coordinates[i] && x == static_elements_coordinates[i + 1])
-                    {
-                        insert = false;
-                        break;
-                    }
-                } //Проверка на статичный елемент
-            }
             if (x < 0)
                 x = field_size - 1;
             else if (x == field_size)
@@ -585,28 +595,32 @@ namespace SudokuGame
             if (y < 0)
                 y = field_size - 1;
             else if (y == field_size)  
-                y = 0;                  //Логика ограничения курсора
+                y = 0;                  //Логика ограничения поля
 
-            if (border_X == 0)
-                border_X += 3;
-            else if (border_X == 4)
-                border_X = 1;
-
-            if (border_Y == 0)
-                border_Y += 3;
-            else if (border_Y == 4)
-                border_Y = 1;           //Логика для секций         
-
+            switch (border_X)
+            {
+                case 0:
+                    border_X += 3;
+                    break;
+                case 4:
+                    border_X = 1;
+                    break;
+                default:
+                    break;
+            }        
             switch (border_Y)
             {
+                case 4:
                 case 1:
+                    border_Y = 1;
                     section = border_X;
                     break;
                 case 2:
                     section = border_Y + border_X + 1;
                     break;
+                case 0: 
                 case 3:
-                    section = border_Y + border_X + 3;
+                    section = (border_Y = 3) + border_X + 3;
                     break;
                 default:
                     break;
@@ -614,12 +628,10 @@ namespace SudokuGame
 
             if ((field_for_player[y, x] != 0) && insert)
                 CheckElement();
-            else
-                element_not_valid = false;
 
             if (win)
                 end_game = false;
-            if (!ElExist(field_for_player, 0) && wrong_elm_cord.Count == 0)
+            if (!ElExist(field_for_player, 0) && wrong_elm_cord_lists.Count == 0)
                 win = true;
         }
 
@@ -627,11 +639,22 @@ namespace SudokuGame
         {
             Generate();
             Logic();
+
             while (end_game)
             {
-                Draw();
-                Input();
-                Logic();
+                try
+                {
+                    Draw();
+                    Input();
+                    Logic();
+                }
+                catch (Exception exaption)
+                {
+                    Console.Clear();
+                    Console.WriteLine($"{exaption.Message}\n\nHmmm how did you broke my game?");
+                    end_game = false;
+                    Console.ReadKey(true);
+                }
             }
         }
     }
