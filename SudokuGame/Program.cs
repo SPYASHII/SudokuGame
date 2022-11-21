@@ -53,6 +53,7 @@ namespace SudokuGame
         {
             for (int i = 0; i < field_size; i++)
             {
+                Console.Write("\t\t\t\t");
                 for (int j = 0; j < field_size; j++)
                 {
                     Console.Write($"{arr[i, j]} ");
@@ -370,9 +371,11 @@ namespace SudokuGame
             
             for (int i = 0; i < field_size; i++)
             {
-                Console.BackgroundColor = ConsoleColor.White;
+                Console.ResetColor();
                 Console.ForegroundColor = ConsoleColor.Black;
-                Console.Write("|");
+                Console.Write("\t\t\t\t");
+                Console.BackgroundColor = ConsoleColor.White;
+                Console.Write("[]");
                 Console.ResetColor();
                 for (int j = 0; j < field_size; j++)
                 {
@@ -447,17 +450,20 @@ namespace SudokuGame
                 }
                 Console.WriteLine();
 
+                Console.ResetColor();
+                Console.Write("\t\t\t\t");
+                Console.BackgroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Black;
                 if ((i + 1) % 3 == 0)
                 {
-                    for (int k = 0; k < field_size + 31; k++)
+                    for (int k = 0; k < field_size + 32; k++)
                     {
                         Console.Write("=");
                     }
                 }
                 else
                 {
-                    Console.BackgroundColor = ConsoleColor.White;
-                    for (int k = 0; k < field_size + 31; k++)
+                    for (int k = 0; k < field_size + 32; k++)
                     {
                         Console.Write("-");
                     }
@@ -465,18 +471,19 @@ namespace SudokuGame
 
                 Console.WriteLine();
             }
+
             Console.ResetColor();
             Console.WriteLine();
             if (!win)
             {
-                Console.WriteLine("Controls:\nA,W,S,D\nEND - Close game");
+                Console.WriteLine("\t\t\t\tControls:\n\t\t\t\tA,W,S,D\n\t\t\t\tEND - Close game");
                 if (show_answer)
                 {
-                    Console.WriteLine("H - Hide Answer\n");
+                    Console.WriteLine("\t\t\t\tH - Hide Answer\n");
                     ShowArr(field);
                 }
                 else
-                    Console.WriteLine("H - Show Answer");
+                    Console.WriteLine("\t\t\t\tH - Show Answer");
             }
             else
             {
@@ -637,6 +644,7 @@ namespace SudokuGame
 
         static void Main()
         {
+            Console.SetWindowSize(110,36);
             Generate();
             Logic();
 
